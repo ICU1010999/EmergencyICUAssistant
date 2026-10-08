@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency & ICU AI Assistant</title>
+
+    <style>
+        :root {
+            --navy: #12304a;
+            --blue: #176b87;
+            --light-blue: #eaf5fa;
+            --background: #f3f7fa;
+            --white: #ffffff;
+            --text: #243746;
+            --muted: #617382;
+            --border: #d7e2e9;
+            --red: #b42318;
+            --orange: #a15c00;
+            --green: #176b48;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--navy), var(--blue));
+            color: white;
+            padding: 28px 18px;
+        }
+
+        .header-content {
+            max-width: 1100px;
+            margin: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 22px;
+            flex-wrap: wrap;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo {
+            width: 76px;
+            height: 76px;
+            object-fit: contain;
+            background: white;
+            border-radius: 12px;
+            padding: 5px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: clamp(25px, 4vw, 36px);
+            line-height: 1.2;
+        }
+
+        header p {
+            margin: 0;
+            color: #e0edf5;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 26px auto;
+            padding: 0 16px;
+        }
+
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(18, 48, 74, 0.05);
+        }
+
+        h2 {
+            color: var(--navy);
+            margin-top: 0;
+        }
+
+        h3 {
+            color: var(--blue);
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin-top: -8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #b9cbd6;
+            border-radius: 8px;
+            background: white;
+            color: var(--text);
+            font: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: 2px solid #9dd5e8;
+            border-color: var(--blue);
+        }
+
+        textarea {
+            min-height: 105px;
+            resize: vertical;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 9px;
+            padding: 12px 18px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .primary-button {
+            background: var(--blue);
+            color: white;
+        }
+
+        .primary-button:hover {
+            background: var(--navy);
+        }
+
+        .secondary-button {
+            background: var(--light-blue);
+            color: var(--navy);
+            border: 1px solid #c5e0eb;
+        }
+
+        .case-description {
+            background: #f2f8fb;
+            border-left: 4px solid var(--blue);
+            padding: 14px 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+
+        .case-description p {
+            margin: 5px 0;
+        }
+
+        .results {
+            display: none;
+        }
+
+        .risk-label {
+            display: inline-block;
+            padding: 7px 13px;
+            border-radius: 7px;
+            font-weight: bold;
+            background: #fff0db;
+            color: var(--orange);
+        }
+
+        .risk-urgent {
+            background: #fde8e7;
+            color: var(--red);
+        }
+
+        .risk-uncertain {
+            background: #fff0db;
+            color: var(--orange);
+        }
+
+        .notice {
+            background: #fff6df;
+            border: 1px solid #eed99b;
+            color: #694b00;
+            border-radius: 9px;
+            padding: 13px 15px;
+            margin: 14px 0;
+        }
+
+        .danger-notice {
+            background: #fff0ef;
+            border-color: #efc1bd;
+            color: #812018;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .result-card {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 17px;
+            background: #fff;
+            margin-bottom: 16px;
+        }
+
+        .result-card h3 {
+            margin-top: 0;
+        }
+
+        ul {
+            padding-left: 22px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .result-list {
+            padding-left: 22px;
+        }
+
+        a {
+            color: #075b83;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        a:hover {
+            color: var(--navy);
+        }
+
+        .reference-description {
+            margin-top: 4px;
+            margin-bottom: 14px;
+            color: var(--muted);
+            font-weight: normal;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        footer {
+            background: var(--navy);
+            color: #e0edf5;
+            text-align: center;
+            padding: 20px;
+            margin-top: 32px;
+            font-size: 13px;
+        }
+
+        footer p {
+            margin: 5px 0;
+        }
+
+        @media (max-width: 760px) {
+            .form-grid,
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .logo {
+                width: 58px;
+                height: 58px;
+            }
+
+            .card {
+                padding: 17px;
+            }
+
+            .header-content {
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="header-content">
+        <div class="logo-group">
+            <img
+                class="logo"
+                src="damanhour_university_logo.png"
+                alt="Damanhour University logo"
+            >
+
+            <img
+                class="logo"
+                src="nursing-logo.png"
+                alt="Nursing logo"
+            >
+        </div>
+
+        <div>
+            <h1>Emergency &amp; ICU AI Assistant</h1>
+            <p>Educational Clinical Assessment Prototype</p>
+            <p>Damanhour University | Faculty of Nursing</p>
+        </div>
+    </div>
+</header>
+
+<main class="container">
+
+    <section class="card">
+        <h2>About the Project</h2>
+
+        <p>
+            This educational prototype helps nursing students practice
+            structured emergency assessment using selected patient
+            observations and symptoms.
+        </p>
+
+        <div class="notice">
+            <strong>Important:</strong>
+            This is a student learning tool, not a validated clinical
+            decision-support system. Do not use it to diagnose, triage,
+            or treat real patients.
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>Patient Assessment</h2>
+
+        <p class="subtitle">
+            Enter the available observations. Use the sample cases below
+            to explore the prototype.
+        </p>
+
+        <div class="form-grid">
+            <div class="field">
+                <label for="age">Age (years)</label>
+                <input id="age" type="number" min="0" max="120"
+                       placeholder="e.g. 45">
+            </div>
+
+            <div class="field">
+                <label for="gcs">Glasgow Coma Scale (3–15)</label>
+                <input id="gcs" type="number" min="3" max="15"
+                       placeholder="e.g. 15">
+            </div>
+
+            <div class="field">
+                <label for="bp">Blood Pressure (mmHg)</label>
+                <input id="bp" type="text"
+                       placeholder="e.g. 120/80">
+            </div>
+
+            <div class="field">
+                <label for="hr">Heart Rate (beats/min)</label>
+                <input id="hr" type="number" min="1" max="300"
+                       placeholder="e.g. 80">
+            </div>
+
+            <div class="field">
+                <label for="rr">Respiratory Rate (breaths/min)</label>
+                <input id="rr" type="number" min="1" max="100"
+                       placeholder="e.g. 18">
+            </div>
+
+            <div class="field">
+                <label for="spo2">SpO₂ (%)</label>
+                <input id="spo2" type="number" min="0" max="100"
+                       placeholder="e.g. 97">
+            </div>
+
+            <div class="field">
+                <label for="temp">Temperature (°C)</label>
+                <input id="temp" type="number" min="25" max="45"
+                       step="0.1" placeholder="e.g. 37.0">
+            </div>
+
+            <div class="field full-width">
+                <label for="symptoms">Symptoms and Clinical Notes</label>
+                <textarea id="symptoms"
+                    placeholder="Describe the symptoms and relevant observations..."></textarea>
+            </div>
+        </div>
+
+        <div class="button-row">
+            <button class="primary-button" onclick="analyzeCase()">
+                Analyze Case
+            </button>
+
+            <button class="secondary-button" onclick="clearForm()">
+                Clear Form
+            </button>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>Clinical Case Practice</h2>
+
+        <p>
+            Choose a sample scenario to populate the assessment fields.
+        </p>
+
+        <div class="field">
+            <label for="caseSelector">Select a Case</label>
+
+            <select id="caseSelector">
+                <option value="respiratory">Case 1 — Respiratory Distress</option>
+                <option value="shock">Case 2 — Suspected Shock</option>
+                <option value="consciousness">Case 3 — Altered Consciousness</option>
+            </select>
+        </div>
+
+        <div id="caseBrief" class="case-description">
+            <h3>Respiratory Distress</h3>
+            <p>
+                Practice recognizing concerning respiratory observations
+                and organizing an initial assessment.
+            </p>
+            <p>
+                <strong>Learning objectives:</strong>
+                ABCDE approach, oxygen saturation, respiratory rate,
+                and escalation of care.
+            </p>
+        </div>
+
+        <div class="button-row">
+            <button class="secondary-button" onclick="loadClinicalCase()">
+                Load Clinical Case
+            </button>
+        </div>
+    </section>
+
+    <section class="card results" id="results">
+        <h2>Assessment Results</h2>
+
+        <div>
+            <strong>Prototype Assessment:</strong>
+            <span id="riskLevel" class="risk-label">Uncertain</span>
+        </div>
+
+        <div id="assessmentNotice" class="notice"></div>
+
+        <div id="warnings"></div>
+
+        <div class="result-grid">
+            <div class="result-card">
+                <h3>Suggested Learning Priorities</h3>
+                <ul id="priorities" class="result-list"></ul>
+            </div>
+
+            <div class="result-card">
+                <h3>Missing or Uncertain Information</h3>
+                <ul id="missingInfo" class="result-list"></ul>
+            </div>
+        </div>
+
+        <div class="result-card">
+            <h3>Clinical Learning Notes</h3>
+            <div id="clinicalInfo"></div>
+        </div>
+
+        <div class="notice danger-notice" id="disclaimer">
+            Educational use only. This prototype does not replace
+            professional assessment, clinical judgment, or local
+            emergency protocols.
+        </div>
+    </section>
+
+    <section class="card" id="clinicalReferences">
+        <h2>Clinical References</h2>
+
+        <p>
+            The following resources support educational learning about
+            emergency assessment. They do not validate this prototype's
+            simplified decision rules.
+        </p>
+
+        <ul class="result-list">
+            <li>
+                <a
+                    href="https://www.who.int/publications/i/item/basic-emergency-care-approach-to-the-acutely-ill-and-injured"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    WHO &amp; ICRC — Basic Emergency Care
+                </a>
+                <p class="reference-description">
+                    ABCDE assessment, breathing difficulties, shock,
+                    and altered mental status.
+                </p>
+            </li>
+
+            <li>
+                <a
+                    href="https://www.nice.org.uk/guidance/CG50"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    NICE — Acutely Ill Adults in Hospital
+                </a>
+                <p class="reference-description">
+                    Recognition of and response to clinical deterioration.
+                </p>
+            </li>
+
+            <li>
+                <a
+                    href="https://www.glasgowcomascale.org/"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    Glasgow Coma Scale — Official Educational Resource
+                </a>
+                <p class="reference-description">
+                    Structured assessment of level of consciousness.
+                </p>
+            </li>
+
+            <li>
+                <a
+                    href="https://www.who.int/teams/integrated-health-services/clinical-services-and-systems/emergency-and-critical-care/emergency-care-toolkit"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    WHO — Emergency Care Toolkit
+                </a>
+                <p class="reference-description">
+                    Emergency care resources and structured clinical checklists.
+                </p>
+            </li>
+        </ul>
+
+        <div class="notice">
+            <strong>Academic note:</strong>
+            This prototype is educational only. Its thresholds are
+            simplified, have not been clinically validated, and must
+            not be used to make real patient triage or treatment decisions.
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <p><strong>Emergency &amp; ICU AI Assistant</strong></p>
+    <p>Educational Student Project — Faculty of Nursing, Damanhour University</p>
+    <p>Not intended for real-world diagnosis, triage, or treatment.</p>
+</footer>
+
+<script>
+    const clinicalCases = {
+        respiratory: {
+            age: 68,
+            gcs: 11,
+            bp: "88/54",
+            hr: 128,
+            rr: 31,
+            spo2: 87,
+            temp: 39.1,
+            symptoms:
+                "Severe shortness of breath, confusion, fever, and weakness.",
+            title: "Respiratory Distress",
+            description:
+                "Practice recognizing concerning respiratory observations and organizing an initial assessment.",
+            objectives:
+                "ABCDE approach, oxygen saturation, respiratory rate, and escalation of care."
+        },
+
+        shock: {
+            age: 54,
+            gcs: 14,
+            bp: "78/46",
+            hr: 132,
+            rr: 26,
+            spo2: 94,
+            temp: 37.2,
+            symptoms:
+                "Weakness, dizziness, cold clammy skin, and reduced urine output.",
+            title: "Suspected Shock",
+            description:
+                "Practice identifying concerning circulatory observations in a simulated case.",
+            objectives:
+                "Circulation assessment, blood pressure, heart rate, perfusion, and urgent escalation."
+        },
+
+        consciousness: {
+            age: 72,
+            gcs: 7,
+            bp: "102/64",
+            hr: 58,
+            rr: 10,
+            spo2: 91,
+            temp: 36.8,
+            symptoms:
+                "Sudden altered consciousness and inability to respond normally.",
+            title: "Altered Consciousness",
+            description:
+                "Practice organizing an assessment for a simulated patient with a reduced level of consciousness.",
+            objectives:
+                "Airway and breathing assessment, GCS, vital signs, and urgent escalation."
+        }
+    };
+
+    const caseSelector = document.getElementById("caseSelector");
+    const caseBrief = document.getElementById("caseBrief");
+
+    caseSelector.addEventListener("change", updateCaseBrief);
+
+    function updateCaseBrief() {
+        const selectedCase = clinicalCases[caseSelector.value];
+
+        caseBrief.innerHTML = `
+            <h3>${selectedCase.title}</h3>
+            <p>${selectedCase.description}</p>
+            <p><strong>Learning objectives:</strong>
+            ${selectedCase.objectives}</p>
+        `;
+    }
+
+    function loadClinicalCase() {
+        const selectedCase = clinicalCases[caseSelector.value];
+
+        document.getElementById("age").value = selectedCase.age;
+        document.getElementById("gcs").value = selectedCase.gcs;
+        document.getElementById("bp").value = selectedCase.bp;
+        document.getElementById("hr").value = selectedCase.hr;
+        document.getElementById("rr").value = selectedCase.rr;
+        document.getElementById("spo2").value = selectedCase.spo2;
+        document.getElementById("temp").value = selectedCase.temp;
+        document.getElementById("symptoms").value = selectedCase.symptoms;
+
+        analyzeCase();
+    }
+
+    function clearForm() {
+        document.getElementById("age").value = "";
+        document.getElementById("gcs").value = "";
+        document.getElementById("bp").value = "";
+        document.getElementById("hr").value = "";
+        document.getElementById("rr").value = "";
+        document.getElementById("spo2").value = "";
+        document.getElementById("temp").value = "";
+        document.getElementById("symptoms").value = "";
+
+        document.getElementById("results").style.display = "none";
+    }
+
+    function readNumber(id) {
+        const value = document.getElementById(id).value.trim();
+
+        if (value === "") {
+            return null;
+        }
+
+        const number = Number(value);
+
+        return Number.isFinite(number) ? number : NaN;
+    }
+
+    function addListItem(list, message) {
+        const item = document.createElement("li");
+        item.textContent = message;
+        list.appendChild(item);
+    }
+
+    function analyzeCase() {
+        const age = readNumber("age");
+        const gcs = readNumber("gcs");
+        const hr = readNumber("hr");
+        const rr = readNumber("rr");
+        const spo2 = readNumber("spo2");
+        const temp = readNumber("temp");
+        const bpText = document.getElementById("bp").value.trim();
+        const symptoms = document.getElementById("symptoms").value.trim();
+
+        const missing = [];
+        const errors = [];
+        const warnings = [];
+        const priorities = [];
+
+        let systolic = null;
+        let diastolic = null;
+
+        if (age === null) {
+            missing.push("Age has not been entered.");
+        } else if (Number.isNaN(age) || age < 0 || age > 120) {
+            errors.push("Age must be between 0 and 120 years.");
+        }
+
+        if (gcs === null) {
+            missing.push("GCS has not been entered.");
+        } else if (Number.isNaN(gcs) || gcs < 3 || gcs > 15 || !Number.isInteger(gcs)) {
+            errors.push("GCS must be a whole number from 3 to 15.");
+        }
+
+        if (bpText === "") {
+            missing.push("Blood pressure has not been entered.");
+        } else {
+            const match = bpText.match(/^\s*(\d{2,3})\s*\/\s*(\d{2,3})\s*$/);
+
+            if (!match) {
+                errors.push("Blood pressure must use the format systolic/diastolic, e.g. 120/80.");
+            } else {
+                systolic = Number(match[1]);
+                diastolic = Number(match[2]);
+
+                if (
+                    systolic < 40 || systolic > 300 ||
+                    diastolic < 20 || diastolic > 200 ||
+                    systolic <= diastolic
+                ) {
+                    errors.push("Please check the blood pressure values.");
+                }
+            }
+        }
+
+        const numericFields = [
+            { id: "hr", value: hr, name: "Heart rate", min: 1, max: 300 },
+            { id: "rr", value: rr, name: "Respiratory rate", min: 1, max: 100 },
+            { id: "spo2", value: spo2, name: "SpO₂", min: 0, max: 100 },
+            { id: "temp", value: temp, name: "Temperature", min: 25, max: 45 }
+        ];
+
+        numericFields.forEach(field => {
+            if (field.value === null) {
+                missing.push(field.name + " has not been entered.");
+            } else if (
+                Number.isNaN(field.value) ||
+                field.value < field.min ||
+                field.value > field.max
+            ) {
+                errors.push(
+                    field.name + " is outside the prototype's accepted input range."
+                );
+            }
+        });
+
+        if (symptoms === "") {
+            missing.push("Symptoms and clinical notes have not been entered.");
+        }
+
+        const hasInvalidData = errors.length > 0;
+
+        if (hasInvalidData) {
+            warnings.push(
+                "Some entries are invalid. Correct them before interpreting the educational output."
+            );
+        }
+
+        const hasConcerningObservations =
+            (systolic !== null && systolic < 90) ||
+            (hr !== null && (hr < 40 || hr > 130)) ||
+            (rr !== null && (rr < 8 || rr > 30)) ||
+            (spo2 !== null && spo2 < 90) ||
+            (gcs !== null && gcs < 9);
+
+        if (systolic !== null && systolic < 90) {
+            priorities.push(
+                "Review the low systolic blood pressure in the context of the complete clinical picture."
+            );
+        }
+
+        if (spo2 !== null && spo2 < 90) {
+            priorities.push(
+                "Review the low oxygen saturation reading and the patient's respiratory status."
+            );
+        }
+
+        if (rr !== null && (rr < 8 || rr > 30)) {
+            priorities.push(
+                "Review the respiratory rate and assess breathing using the appropriate clinical approach."
+            );
+        }
+
+        if (hr !== null && (hr < 40 || hr > 130)) {
+            priorities.push(
+                "Review the heart rate and assess circulation and the patient's overall condition."
+            );
+        }
+
+        if (gcs !== null && gcs < 9) {
+            priorities.push(
+                "A low GCS is a concerning observation that requires urgent professional assessment."
+            );
+        }
+
+        if (temp !== null && (temp >= 39 || temp < 35)) {
+            priorities.push(
+                "Review the temperature in context and assess for other signs of illness."
+            );
+        }
+
+        if (symptoms && /confusion|unconscious|unresponsive|severe shortness of breath|chest pain/i.test(symptoms)) {
+            priorities.push(
+                "The entered symptoms include potentially serious features that warrant prompt professional assessment."
+            );
+        }
+
+        if (priorities.length === 0) {
+            priorities.push(
+                "Practice a systematic ABCDE assessment and review all observations together."
+            );
+            priorities.push(
+                "Consider the patient's history, trends, symptoms, and local clinical guidance."
+            );
+        }
+
+        const riskLevel = document.getElementById("riskLevel");
+        const assessmentNotice = document.getElementById("assessmentNotice");
+        const warningsDiv = document.getElementById("warnings");
+        const prioritiesList = document.getElementById("priorities");
+        const missingList = document.getElementById("missingInfo");
+        const clinicalInfo = document.getElementById("clinicalInfo");
+
+        riskLevel.className = "risk-label";
+        warningsDiv.innerHTML = "";
+        prioritiesList.innerHTML = "";
+        missingList.innerHTML = "";
+        clinicalInfo.innerHTML = "";
+
+        if (hasInvalidData) {
+            riskLevel.textContent = "Invalid Data";
+            riskLevel.classList.add("risk-urgent");
+
+            assessmentNotice.textContent =
+                "The input contains invalid values. The prototype cannot provide a meaningful educational assessment until they are corrected.";
+            assessmentNotice.className = "notice danger-notice";
+        } else if (hasConcerningObservations) {
+            riskLevel.textContent = "Concerning Findings";
+            riskLevel.classList.add("risk-urgent");
+
+            assessmentNotice.textContent =
+                "One or more entered observations cross simplified educational alert thresholds. This is not a diagnosis or a validated triage category.";
+            assessmentNotice.className = "notice danger-notice";
+        } else {
+            riskLevel.textContent = "Uncertain";
+            riskLevel.classList.add("risk-uncertain");
+
+            assessmentNotice.textContent =
+                "The prototype has not identified one of its simplified alert thresholds, or information may be incomplete. This does not establish that the patient is safe or low risk.";
+            assessmentNotice.className = "notice";
+        }
+
+        errors.forEach(message => {
+            addListItem(warningsDiv, message);
+        });
+
+        if (warningsDiv.children.length > 0) {
+            warningsDiv.className = "notice danger-notice";
+        }
+
+        if (missing.length === 0) {
+            addListItem(missingList, "No required fields are blank.");
+        } else {
+            missing.forEach(message => addListItem(missingList, message));
+        }
+
+        priorities.forEach(message => addListItem(prioritiesList, message));
+
+        const note1 = document.createElement("p");
+        note1.textContent =
+            "This output organizes selected observations for student learning only. It does not establish a diagnosis or determine the correct treatment.";
+        clinicalInfo.appendChild(note1);
+
+        const note2 = document.createElement("p");
+        note2.textContent =
+            "Real clinical assessment requires a trained professional, the patient's full history, repeat observations when appropriate, and local emergency procedures.";
+        clinicalInfo.appendChild(note2);
+
+        if (hasConcerningObservations) {
+            const note3 = document.createElement("p");
+            note3.textContent =
+                "In a real clinical setting, concerning observations should be escalated promptly according to local emergency procedures.";
+            clinicalInfo.appendChild(note3);
+        }
+
+        document.getElementById("results").style.display = "block";
+        document.getElementById("results").scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
+
+    updateCaseBrief();
+</script>
+
+</body>
+</html>
