@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emergency & ICU AI Assistant</title>
+<style>
+:root{--navy:#12304a;--blue:#176b87;--light-blue:#eaf5fa;--background:#f3f7fa;--white:#fff;--text:#243746;--muted:#617382;--border:#d7e2e9;--red:#b42318;--orange:#a15c00;--green:#176b48}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--background);color:var(--text);line-height:1.6}
+header{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:28px 18px}
+.header-content{max-width:1100px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap}
+.logo-group{display:flex;align-items:center;gap:14px}
+.logo{width:76px;height:76px;object-fit:contain;background:#fff;border-radius:12px;padding:5px}
+h1{margin:0 0 8px;font-size:clamp(25px,4vw,36px);line-height:1.2}
+header p{margin:0;color:#e0edf5}
+.container{max-width:1100px;margin:26px auto;padding:0 16px}
+.card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:20px;box-shadow:0 4px 15px rgba(18,48,74,.05)}
+h2{color:var(--navy);margin-top:0}h3{color:var(--blue);margin-bottom:6px}
+.subtitle{color:var(--muted);margin-top:-8px}
+.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.field{display:flex;flex-direction:column;gap:6px}
+label{font-weight:bold;font-size:14px}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid #b9cbd6;border-radius:8px;background:#fff;color:var(--text);font:inherit}
+input:focus,select:focus,textarea:focus{outline:2px solid #9dd5e8;border-color:var(--blue)}
+textarea{min-height:105px;resize:vertical}
+.full-width{grid-column:1/-1}
+.button-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+button{border:0;border-radius:9px;padding:12px 18px;font-size:15px;font-weight:bold;cursor:pointer}
+.primary-button{background:var(--blue);color:#fff}.primary-button:hover{background:var(--navy)}
+.secondary-button{background:var(--light-blue);color:var(--navy);border:1px solid #c5e0eb}
+.case-description{background:#f2f8fb;border-left:4px solid var(--blue);padding:14px 16px;border-radius:8px;margin-top:16px}
+.case-description p{margin:5px 0}.results{display:none}
+.risk-label{display:inline-block;padding:7px 13px;border-radius:7px;font-weight:bold;background:#fff0db;color:var(--orange)}
+.risk-urgent{background:#fde8e7;color:var(--red)}.risk-uncertain{background:#fff0db;color:var(--orange)}
+.notice{background:#fff6df;border:1px solid #eed99b;color:#694b00;border-radius:9px;padding:13px 15px;margin:14px 0}
+.danger-notice{background:#fff0ef;border-color:#efc1bd;color:#812018}
+.result-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.result-card{border:1px solid var(--border);border-radius:10px;padding:17px;background:#fff;margin-bottom:16px}
+.result-card h3{margin-top:0}ul{padding-left:22px}li{margin-bottom:8px}.result-list{padding-left:22px}
+a{color:#075b83;font-weight:bold;overflow-wrap:anywhere}a:hover{color:var(--navy)}
+.reference-description{margin-top:4px;margin-bottom:14px;color:var(--muted);font-weight:normal}
+.muted{color:var(--muted)}
+footer{background:var(--navy);color:#e0edf5;text-align:center;padding:20px;margin-top:32px;font-size:13px}footer p{margin:5px 0}
+.language-field{min-width:150px;max-width:190px}
+body[dir="rtl"]{direction:rtl;text-align:right}
+body[dir="rtl"] .case-description{border-left:none;border-right:4px solid var(--blue)}
+body[dir="rtl"] ul,body[dir="rtl"] .result-list{padding-left:0;padding-right:22px}
+body[dir="rtl"] .header-content{direction:rtl}
+body[dir="rtl"] .logo-group{direction:rtl}
+@media(max-width:760px){.form-grid,.result-grid{grid-template-columns:1fr}.logo{width:58px;height:58px}.card{padding:17px}.header-content{align-items:flex-start}}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-content">
+    <div class="logo-group">
+      <img class="logo" src="damanhour_university_logo.png" alt="Damanhour University logo">
+      <img class="logo" src="nursing-logo.png" alt="Nursing logo">
+    </div>
+    <div>
+      <h1 data-i18n="siteTitle">Emergency &amp; ICU AI Assistant</h1>
+      <p data-i18n="subtitle">Educational Clinical Assessment Prototype</p>
+      <p data-i18n="university">Damanhour University | Faculty of Nursing</p>
+    </div>
+    <div class="field language-field">
+      <label for="analysisLanguage" data-i18n="languageLabel" style="color:white">Interface Language</label>
+      <select id="analysisLanguage" aria-label="Interface language">
+        <option value="en" selected>English</option>
+        <option value="ar">العربية</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <section class="card">
+    <h2 data-i18n="aboutTitle">About the Project</h2>
+    <p data-i18n="aboutText">This educational prototype helps nursing students practice structured emergency assessment using selected patient observations and symptoms.</p>
+    <div class="notice"><strong data-i18n="important">Important:</strong> <span data-i18n="importantText">This is a student learning tool, not a validated clinical decision-support system. Do not use it to diagnose, triage, or treat real patients.</span></div>
+  </section>
+
+  <section class="card">
+    <h2 data-i18n="assessmentTitle">Patient Assessment</h2>
+    <p class="subtitle" data-i18n="assessmentSubtitle">Enter the available observations. Use the sample cases below to explore the prototype.</p>
+    <div class="form-grid">
+      <div class="field"><label for="age" data-i18n="age">Age (years)</label><input id="age" type="number" min="0" max="120" placeholder="e.g. 45" data-i18n-placeholder="agePlaceholder"></div>
+      <div class="field"><label for="gcs" data-i18n="gcs">Glasgow Coma Scale (3–15)</label><input id="gcs" type="number" min="3" max="15" placeholder="e.g. 15" data-i18n-placeholder="gcsPlaceholder"></div>
+      <div class="field"><label for="bp" data-i18n="bp">Blood Pressure (mmHg)</label><input id="bp" type="text" placeholder="e.g. 120/80" data-i18n-placeholder="bpPlaceholder"></div>
+      <div class="field"><label for="hr" data-i18n="hr">Heart Rate (beats/min)</label><input id="hr" type="number" min="1" max="300" placeholder="e.g. 80" data-i18n-placeholder="hrPlaceholder"></div>
+      <div class="field"><label for="rr" data-i18n="rr">Respiratory Rate (breaths/min)</label><input id="rr" type="number" min="1" max="100" placeholder="e.g. 18" data-i18n-placeholder="rrPlaceholder"></div>
+      <div class="field"><label for="spo2" data-i18n="spo2">SpO₂ (%)</label><input id="spo2" type="number" min="0" max="100" placeholder="e.g. 97" data-i18n-placeholder="spo2Placeholder"></div>
+      <div class="field"><label for="temp" data-i18n="temp">Temperature (°C)</label><input id="temp" type="number" min="25" max="45" step="0.1" placeholder="e.g. 37.0" data-i18n-placeholder="tempPlaceholder"></div>
+      <div class="field full-width"><label for="symptoms" data-i18n="symptoms">Symptoms and Clinical Notes</label><textarea id="symptoms" data-i18n-placeholder="symptomsPlaceholder" placeholder="Describe the symptoms and relevant observations..."></textarea></div>
+    </div>
+    <div class="button-row">
+      <button class="primary-button" id="analyzeButton" data-i18n="analyze">Analyze Case</button>
+      <button class="secondary-button" id="clearButton" data-i18n="clear">Clear Form</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 data-i18n="practiceTitle">Clinical Case Practice</h2>
+    <p data-i18n="practiceText">Choose a sample scenario to populate the assessment fields.</p>
+    <div class="field">
+      <label for="caseSelector" data-i18n="selectCase">Select a Case</label>
+      <select id="caseSelector">
+        <option value="respiratory" data-i18n="caseRespOption">Case 1 — Respiratory Distress</option>
+        <option value="shock" data-i18n="caseShockOption">Case 2 — Suspected Shock</option>
+        <option value="consciousness" data-i18n="caseConsciousOption">Case 3 — Altered Consciousness</option>
+      </select>
+    </div>
+    <div id="caseBrief" class="case-description"></div>
+    <div class="button-row"><button class="secondary-button" id="loadCaseButton" data-i18n="loadCase">Load Clinical Case</button></div>
+  </section>
+
+  <section class="card results" id="results">
+    <h2 data-i18n="resultsTitle">Assessment Results</h2>
+    <div><strong data-i18n="prototypeAssessment">Prototype Assessment:</strong> <span id="riskLevel" class="risk-label">Uncertain</span></div>
+    <div id="assessmentNotice" class="notice"></div><div id="warnings"></div>
+    <div class="result-grid">
+      <div class="result-card"><h3 data-i18n="prioritiesTitle">Suggested Learning Priorities</h3><ul id="priorities" class="result-list"></ul></div>
+      <div class="result-card"><h3 data-i18n="missingTitle">Missing or Uncertain Information</h3><ul id="missingInfo" class="result-list"></ul></div>
+    </div>
+    <div class="result-card"><h3 data-i18n="clinicalNotesTitle">Clinical Learning Notes</h3><div id="clinicalInfo"></div></div>
+    <div class="notice danger-notice" id="disclaimer" data-i18n="disclaimer">Educational use only. This prototype does not replace professional assessment, clinical judgment, or local emergency protocols.</div>
+  </section>
+
+  <section class="card" id="clinicalReferences">
+    <h2 data-i18n="referencesTitle">Clinical References</h2>
+    <p data-i18n="referencesIntro">The following resources support educational learning about emergency assessment. They do not validate this prototype's simplified decision rules.</p>
+    <ul class="result-list">
+      <li><a href="https://www.who.int/publications/i/item/basic-emergency-care-approach-to-the-acutely-ill-and-injured" target="_blank" rel="noopener noreferrer">WHO &amp; ICRC — Basic Emergency Care</a><p class="reference-description" data-i18n="ref1">ABCDE assessment, breathing difficulties, shock, and altered mental status.</p></li>
+      <li><a href="https://www.nice.org.uk/guidance/CG50" target="_blank" rel="noopener noreferrer">NICE — Acutely Ill Adults in Hospital</a><p class="reference-description" data-i18n="ref2">Recognition of and response to clinical deterioration.</p></li>
+      <li><a href="https://www.glasgowcomascale.org/" target="_blank" rel="noopener noreferrer">Glasgow Coma Scale — Official Educational Resource</a><p class="reference-description" data-i18n="ref3">Structured assessment of level of consciousness.</p></li>
+      <li><a href="https://www.who.int/teams/integrated-health-services/clinical-services-and-systems/emergency-and-critical-care/emergency-care-toolkit" target="_blank" rel="noopener noreferrer">WHO — Emergency Care Toolkit</a><p class="reference-description" data-i18n="ref4">Emergency care resources and structured clinical checklists.</p></li>
+    </ul>
+    <div class="notice"><strong data-i18n="academicNote">Academic note:</strong> <span data-i18n="academicText">This prototype is educational only. Its thresholds are simplified, have not been clinically validated, and must not be used to make real patient triage or treatment decisions.</span></div>
+  </section>
+</main>
+
+<footer>
+  <p><strong data-i18n="siteTitle">Emergency &amp; ICU AI Assistant</strong></p>
+  <p data-i18n="footerProject">Educational Student Project — Faculty of Nursing, Damanhour University</p>
+  <p data-i18n="footerDisclaimer">Not intended for real-world diagnosis, triage, or treatment.</p>
+</footer>
+
+<script>
+const WORKER_URL = "https://emergency-icu-ai.gmhmd6809.workers.dev";
+
+const translations = {
+  en: {
+    siteTitle:"Emergency & ICU AI Assistant", subtitle:"Educational Clinical Assessment Prototype", university:"Damanhour University | Faculty of Nursing",
+    languageLabel:"Interface Language", aboutTitle:"About the Project", aboutText:"This educational prototype helps nursing students practice structured emergency assessment using selected patient observations and symptoms.",
+    important:"Important:", importantText:"This is a student learning tool, not a validated clinical decision-support system. Do not use it to diagnose, triage, or treat real patients.",
+    assessmentTitle:"Patient Assessment", assessmentSubtitle:"Enter the available observations. Use the sample cases below to explore the prototype.",
+    age:"Age (years)",gcs:"Glasgow Coma Scale (3–15)",bp:"Blood Pressure (mmHg)",hr:"Heart Rate (beats/min)",rr:"Respiratory Rate (breaths/min)",spo2:"SpO₂ (%)",temp:"Temperature (°C)",symptoms:"Symptoms and Clinical Notes",
+    agePlaceholder:"e.g. 45",gcsPlaceholder:"e.g. 15",bpPlaceholder:"e.g. 120/80",hrPlaceholder:"e.g. 80",rrPlaceholder:"e.g. 18",spo2Placeholder:"e.g. 97",tempPlaceholder:"e.g. 37.0",symptomsPlaceholder:"Describe the symptoms and relevant observations...",
+    analyze:"Analyze Case",clear:"Clear Form",practiceTitle:"Clinical Case Practice",practiceText:"Choose a sample scenario to populate the assessment fields.",selectCase:"Select a Case",
+    caseRespOption:"Case 1 — Respiratory Distress",caseShockOption:"Case 2 — Suspected Shock",caseConsciousOption:"Case 3 — Altered Consciousness",loadCase:"Load Clinical Case",
+    resultsTitle:"Assessment Results",prototypeAssessment:"Prototype Assessment:",prioritiesTitle:"Suggested Learning Priorities",missingTitle:"Missing or Uncertain Information",clinicalNotesTitle:"Clinical Learning Notes",
+    disclaimer:"Educational use only. This prototype does not replace professional assessment, clinical judgment, or local emergency protocols.",
+    referencesTitle:"Clinical References",referencesIntro:"The following resources support educational learning about emergency assessment. They do not validate this prototype's simplified decision rules.",
+    ref1:"ABCDE assessment, breathing difficulties, shock, and altered mental status.",ref2:"Recognition of and response to clinical deterioration.",ref3:"Structured assessment of level of consciousness.",ref4:"Emergency care resources and structured clinical checklists.",
+    academicNote:"Academic note:",academicText:"This prototype is educational only. Its thresholds are simplified, have not been clinically validated, and must not be used to make real patient triage or treatment decisions.",
+    footerProject:"Educational Student Project — Faculty of Nursing, Damanhour University",footerDisclaimer:"Not intended for real-world diagnosis, triage, or treatment.",
+    caseTitles:{respiratory:"Respiratory Distress",shock:"Suspected Shock",consciousness:"Altered Consciousness"},
+    caseDescriptions:{respiratory:"Practice recognizing concerning respiratory observations.",shock:"Practice identifying concerning circulatory observations.",consciousness:"Practice assessing a simulated patient with reduced consciousness."},
+    caseObjectives:{respiratory:"ABCDE approach, oxygen saturation, respiratory rate, and escalation of care.",shock:"Circulation, blood pressure, heart rate, perfusion, and escalation.",consciousness:"Airway, breathing, GCS, vital signs, and urgent escalation."},
+    learningObjectives:"Learning objectives:",loading:"Sending case data to the AI model...",aiReceived:"AI response received.",aiFailed:"AI analysis could not be completed.",aiHeading:"AI Clinical Analysis",
+    invalidData:"Invalid Data",concerning:"Concerning Findings",uncertain:"Uncertain",
+    invalidNotice:"Correct invalid entries before requesting AI analysis.",
+    concerningNotice:"Some observations cross simplified educational alert thresholds. This is not a diagnosis or a validated triage category.",
+    uncertainNotice:"No simplified alert threshold was identified, or information may be incomplete. This does not establish that the patient is safe.",
+    ageMissing:"Age has not been entered.",ageInvalid:"Age must be between 0 and 120.",gcsMissing:"GCS has not been entered.",gcsInvalid:"GCS must be a whole number from 3 to 15.",
+    bpMissing:"Blood pressure has not been entered.",bpFormat:"Enter blood pressure as systolic/diastolic, e.g. 120/80.",bpInvalid:"Please check the blood pressure values.",
+    fieldMissing:"{field} has not been entered.",fieldInvalid:"{field} is outside the accepted input range.",symptomsMissing:"Symptoms and clinical notes have not been entered.",
+    systolicPriority:"Review the low systolic blood pressure.",spo2Priority:"Review the low oxygen saturation and respiratory status.",rrPriority:"Review the respiratory rate and breathing.",
+    hrPriority:"Review the heart rate and circulation.",gcsPriority:"Reduced GCS is concerning and requires urgent professional assessment.",tempPriority:"Review the temperature in the context of the full clinical picture.",
+    symptomPriority:"The symptoms include potentially serious features.",generalPriority1:"Practice a systematic ABCDE assessment.",generalPriority2:"Consider history, trends, symptoms, and local clinical guidance.",
+    noMissing:"No required fields are blank.",clinicalCaution:"Educational use only. AI output may be incomplete or incorrect and does not replace professional assessment or local emergency protocols.",
+    aiNotRequested:"AI analysis was not requested because some entries are invalid.",
+    workerInvalid:"The Worker returned an invalid response. Check its deployed code.",workerFailed:"Worker request failed (HTTP {status}).",noAI:"No AI analysis was returned. Check the Worker model and AI binding.",
+    aiTroubleshoot:"Check the Worker URL, deployment, AI binding, model availability, and CORS settings. Open the browser console for further details."
+  },
+  ar: {
+    siteTitle:"مساعد الذكاء الاصطناعي للطوارئ والعناية المركزة",subtitle:"نموذج تعليمي للتقييم السريري",university:"جامعة دمنهور | كلية التمريض",
+    languageLabel:"لغة الواجهة",aboutTitle:"عن المشروع",aboutText:"يساعد هذا النموذج التعليمي طلاب التمريض على التدرب على التقييم المنظم لحالات الطوارئ باستخدام ملاحظات المريض وأعراضه.",
+    important:"تنبيه مهم:",importantText:"هذه أداة تعليمية للطلاب وليست نظامًا معتمدًا لدعم القرارات السريرية. لا تستخدمها لتشخيص المرضى الحقيقيين أو فرزهم أو علاجهم.",
+    assessmentTitle:"تقييم المريض",assessmentSubtitle:"أدخل الملاحظات المتاحة. استخدم الحالات النموذجية أدناه لاستكشاف النموذج.",
+    age:"العمر (بالسنوات)",gcs:"مقياس غلاسكو للغيبوبة (3–15)",bp:"ضغط الدم (ملم زئبق)",hr:"معدل ضربات القلب (ضربة/دقيقة)",rr:"معدل التنفس (نَفَس/دقيقة)",spo2:"تشبع الأكسجين SpO₂ (%)",temp:"درجة الحرارة (°م)",symptoms:"الأعراض والملاحظات السريرية",
+    agePlaceholder:"مثال: 45",gcsPlaceholder:"مثال: 15",bpPlaceholder:"مثال: 120/80",hrPlaceholder:"مثال: 80",rrPlaceholder:"مثال: 18",spo2Placeholder:"مثال: 97",tempPlaceholder:"مثال: 37.0",symptomsPlaceholder:"صف الأعراض والملاحظات ذات الصلة...",
+    analyze:"تحليل الحالة",clear:"مسح الحقول",practiceTitle:"التدرب على الحالات السريرية",practiceText:"اختر حالة نموذجية لملء حقول التقييم.",selectCase:"اختر حالة",
+    caseRespOption:"الحالة 1 — ضيق التنفس",caseShockOption:"الحالة 2 — اشتباه الصدمة",caseConsciousOption:"الحالة 3 — تغير مستوى الوعي",loadCase:"تحميل الحالة السريرية",
+    resultsTitle:"نتائج التقييم",prototypeAssessment:"تقييم النموذج:",prioritiesTitle:"أولويات التعلم المقترحة",missingTitle:"معلومات ناقصة أو غير مؤكدة",clinicalNotesTitle:"ملاحظات للتعلم السريري",
+    disclaimer:"لأغراض التعليم فقط. لا يغني هذا النموذج عن التقييم المهني أو الحكم السريري أو بروتوكولات الطوارئ المحلية.",
+    referencesTitle:"المراجع السريرية",referencesIntro:"تدعم المصادر التالية التعلم عن تقييم الطوارئ، لكنها لا تثبت صحة قواعد القرار المبسطة في هذا النموذج.",
+    ref1:"تقييم ABCDE وصعوبات التنفس والصدمة وتغير الحالة الذهنية.",ref2:"التعرف على التدهور السريري والاستجابة له.",ref3:"تقييم منظم لمستوى الوعي.",ref4:"موارد الرعاية الطارئة وقوائم التحقق السريرية المنظمة.",
+    academicNote:"ملاحظة أكاديمية:",academicText:"هذا النموذج تعليمي فقط. حدوده مبسطة ولم تخضع للتحقق السريري، ويجب عدم استخدامها لاتخاذ قرارات فرز المرضى الحقيقيين أو علاجهم.",
+    footerProject:"مشروع طلابي تعليمي — كلية التمريض، جامعة دمنهور",footerDisclaimer:"غير مخصص للتشخيص أو الفرز أو العلاج في الواقع العملي.",
+    caseTitles:{respiratory:"ضيق التنفس",shock:"اشتباه الصدمة",consciousness:"تغير مستوى الوعي"},
+    caseDescriptions:{respiratory:"تدرّب على التعرف على مؤشرات اضطراب التنفس المقلقة.",shock:"تدرّب على تحديد المؤشرات المقلقة المتعلقة بالدورة الدموية.",consciousness:"تدرّب على تقييم مريض افتراضي لديه انخفاض في مستوى الوعي."},
+    caseObjectives:{respiratory:"منهج ABCDE، وتشبع الأكسجين، ومعدل التنفس، وتصعيد الرعاية.",shock:"الدورة الدموية وضغط الدم ومعدل القلب والتروية وتصعيد الرعاية.",consciousness:"مجرى الهواء والتنفس ومقياس غلاسكو والعلامات الحيوية والتصعيد العاجل."},
+    learningObjectives:"أهداف التعلم:",loading:"جارٍ إرسال بيانات الحالة إلى نموذج الذكاء الاصطناعي...",aiReceived:"تم استلام رد الذكاء الاصطناعي.",aiFailed:"تعذر إكمال تحليل الذكاء الاصطناعي.",aiHeading:"التحليل السريري بالذكاء الاصطناعي",
+    invalidData:"بيانات غير صالحة",concerning:"مؤشرات تستدعي الانتباه",uncertain:"غير مؤكد",
+    invalidNotice:"صحح المدخلات غير الصالحة قبل طلب تحليل الذكاء الاصطناعي.",
+    concerningNotice:"تتجاوز بعض الملاحظات حدود التنبيه التعليمية المبسطة. هذا ليس تشخيصًا ولا تصنيفًا معتمدًا للفرز.",
+    uncertainNotice:"لم تظهر حدود التنبيه المبسطة أو قد تكون المعلومات غير مكتملة. لا يعني ذلك أن المريض في أمان.",
+    ageMissing:"لم يتم إدخال العمر.",ageInvalid:"يجب أن يكون العمر بين 0 و120 سنة.",gcsMissing:"لم يتم إدخال مقياس غلاسكو.",gcsInvalid:"يجب أن تكون قيمة غلاسكو عددًا صحيحًا من 3 إلى 15.",
+    bpMissing:"لم يتم إدخال ضغط الدم.",bpFormat:"أدخل ضغط الدم بصيغة الانقباضي/الانبساطي، مثال 120/80.",bpInvalid:"يرجى التحقق من قيم ضغط الدم.",
+    fieldMissing:"لم يتم إدخال {field}.",fieldInvalid:"قيمة {field} خارج النطاق المقبول.",symptomsMissing:"لم يتم إدخال الأعراض والملاحظات السريرية.",
+    systolicPriority:"راجع انخفاض ضغط الدم الانقباضي.",spo2Priority:"راجع انخفاض تشبع الأكسجين وحالة التنفس.",rrPriority:"راجع معدل التنفس ونمطه.",
+    hrPriority:"راجع معدل ضربات القلب والدورة الدموية.",gcsPriority:"انخفاض مقياس غلاسكو مؤشر مقلق ويتطلب تقييمًا مهنيًا عاجلًا.",tempPriority:"راجع درجة الحرارة ضمن الصورة السريرية الكاملة.",
+    symptomPriority:"تتضمن الأعراض علامات قد تكون خطيرة.",generalPriority1:"تدرّب على إجراء تقييم منهجي باستخدام ABCDE.",generalPriority2:"ضع التاريخ المرضي وتغيرات الحالة والأعراض والإرشادات المحلية في الاعتبار.",
+    noMissing:"لا توجد حقول مطلوبة فارغة.",clinicalCaution:"لأغراض التعليم فقط. قد تكون استجابة الذكاء الاصطناعي ناقصة أو غير صحيحة، ولا تحل محل التقييم المهني أو بروتوكولات الطوارئ المحلية.",
+    aiNotRequested:"لم يُطلب تحليل الذكاء الاصطناعي لأن بعض المدخلات غير صالحة.",
+    workerInvalid:"أعاد Worker استجابة غير صالحة. تحقق من الكود المنشور.",workerFailed:"فشل طلب Worker (HTTP {status}).",noAI:"لم يتم إرجاع تحليل من الذكاء الاصطناعي. تحقق من النموذج وربط AI في Worker.",
+    aiTroubleshoot:"تحقق من رابط Worker والنشر وربط AI وتوفر النموذج وإعدادات CORS. افتح وحدة تحكم المتصفح لمزيد من التفاصيل."
+  }
+};
+
+const clinicalCases = {
+  respiratory:{age:68,gcs:11,bp:"88/54",hr:128,rr:31,spo2:87,temp:39.1,symptoms:{en:"Severe shortness of breath, confusion, fever, and weakness.",ar:"ضيق شديد في التنفس، وارتباك، وحمى، وضعف."},key:"respiratory"},
+  shock:{age:54,gcs:14,bp:"78/46",hr:132,rr:26,spo2:94,temp:37.2,symptoms:{en:"Weakness, dizziness, cold clammy skin, and reduced urine output.",ar:"ضعف ودوخة وبرودة ورطوبة الجلد وانخفاض كمية البول."},key:"shock"},
+  consciousness:{age:72,gcs:7,bp:"102/64",hr:58,rr:10,spo2:91,temp:36.8,symptoms:{en:"Sudden altered consciousness and inability to respond normally.",ar:"تغير مفاجئ في مستوى الوعي وعدم القدرة على الاستجابة بصورة طبيعية."},key:"consciousness"}
+};
+
+const $ = id => document.getElementById(id);
+let currentLanguage = "en";
+const t = key => translations[currentLanguage][key] ?? translations.en[key] ?? key;
+const interpolate = (text, values={}) => text.replace(/\{(\w+)\}/g, (_,key) => values[key] ?? "");
+
+function setLanguage(language) {
+  currentLanguage = language === "ar" ? "ar" : "en";
+  document.documentElement.lang = currentLanguage;
+  document.documentElement.dir = currentLanguage === "ar" ? "rtl" : "ltr";
+  document.body.dir = currentLanguage === "ar" ? "rtl" : "ltr";
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.dataset.i18n;
+    const value = t(key);
+    if (value !== key) el.textContent = value;
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+  $("analysisLanguage").value = currentLanguage;
+  updateCaseBrief();
+  // Keep any existing results visible in the chosen interface language.
+  const risk = $("riskLevel");
+  if (risk.dataset.state) risk.textContent = t(risk.dataset.state);
+}
+
+function updateCaseBrief() {
+  const c = clinicalCases[$("caseSelector").value];
+  const brief = $("caseBrief");
+  brief.replaceChildren();
+  const title = document.createElement("h3");
+  title.textContent = translations[currentLanguage].caseTitles[c.key];
+  const description = document.createElement("p");
+  description.textContent = translations[currentLanguage].caseDescriptions[c.key];
+  const objectives = document.createElement("p");
+  const strong = document.createElement("strong");
+  strong.textContent = t("learningObjectives") + " ";
+  objectives.append(strong, document.createTextNode(translations[currentLanguage].caseObjectives[c.key]));
+  brief.append(title, description, objectives);
+}
+
+function loadClinicalCase() {
+  const c = clinicalCases[$("caseSelector").value];
+  ["age","gcs","bp","hr","rr","spo2","temp"].forEach(id => $(id).value = c[id]);
+  $("symptoms").value = c.symptoms[currentLanguage];
+  analyzeCase();
+}
+
+function clearForm() {
+  ["age","gcs","bp","hr","rr","spo2","temp","symptoms"].forEach(id => $(id).value = "");
+  $("results").style.display = "none";
+}
+
+function readNumber(id) {
+  const value = $(id).value.trim();
+  if (value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : NaN;
+}
+function addListItem(list,message) {
+  const item = document.createElement("li");
+  item.textContent = message;
+  list.appendChild(item);
+}
+function addWarning(message) {
+  const p = document.createElement("p");
+  p.textContent = message;
+  $("warnings").appendChild(p);
+}
+
+async function requestAIAnalysis(patient) {
+  const section = document.createElement("div");
+  section.className = "result-card";
+  const heading = document.createElement("h3");
+  heading.textContent = t("aiHeading");
+  const status = document.createElement("p");
+  status.setAttribute("role","status");
+  status.textContent = t("loading");
+  const output = document.createElement("div");
+  output.style.whiteSpace = "pre-wrap";
+  output.style.overflowWrap = "anywhere";
+  section.append(heading,status,output);
+  $("clinicalInfo").appendChild(section);
+
+  try {
+    const response = await fetch(WORKER_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({patient,language:currentLanguage})
+    });
+    let data;
+    try { data = await response.json(); }
+    catch { throw new Error(t("workerInvalid")); }
+    if (!response.ok) throw new Error(interpolate(t("workerFailed"),{status:response.status}) + " " + (data.error || ""));
+    if (typeof data.response !== "string" || !data.response.trim()) throw new Error(t("noAI"));
+    status.textContent = t("aiReceived");
+    output.textContent = data.response;
+  } catch(error) {
+    status.textContent = t("aiFailed");
+    output.textContent = error.message + "\n\n" + t("aiTroubleshoot");
+  }
+}
+
+function analyzeCase() {
+  const age=readNumber("age"),gcs=readNumber("gcs"),hr=readNumber("hr"),rr=readNumber("rr"),spo2=readNumber("spo2"),temp=readNumber("temp");
+  const bpText=$("bp").value.trim(), symptoms=$("symptoms").value.trim();
+  const missing=[],errors=[],priorities=[];
+  let systolic=null,diastolic=null;
+
+  if(age===null) missing.push(t("ageMissing")); else if(Number.isNaN(age)||age<0||age>120) errors.push(t("ageInvalid"));
+  if(gcs===null) missing.push(t("gcsMissing")); else if(Number.isNaN(gcs)||!Number.isInteger(gcs)||gcs<3||gcs>15) errors.push(t("gcsInvalid"));
+  if(!bpText) missing.push(t("bpMissing"));
+  else {
+    const match=bpText.match(/^\s*(\d{2,3})\s*\/\s*(\d{2,3})\s*$/);
+    if(!match) errors.push(t("bpFormat"));
+    else {
+      systolic=Number(match[1]);diastolic=Number(match[2]);
+      if(systolic<40||systolic>300||diastolic<20||diastolic>200||systolic<=diastolic) errors.push(t("bpInvalid"));
+    }
+  }
+  const fields=[
+    {value:hr,name:currentLanguage==="ar"?"معدل ضربات القلب":"Heart rate",min:1,max:300},
+    {value:rr,name:currentLanguage==="ar"?"معدل التنفس":"Respiratory rate",min:1,max:100},
+    {value:spo2,name:"SpO₂",min:0,max:100},
+    {value:temp,name:currentLanguage==="ar"?"درجة الحرارة":"Temperature",min:25,max:45}
+  ];
+  fields.forEach(f=>{
+    if(f.value===null) missing.push(interpolate(t("fieldMissing"),{field:f.name}));
+    else if(Number.isNaN(f.value)||f.value<f.min||f.value>f.max) errors.push(interpolate(t("fieldInvalid"),{field:f.name}));
+  });
+  if(!symptoms) missing.push(t("symptomsMissing"));
+
+  const invalid=errors.length>0;
+  const concerning=(systolic!==null&&systolic<90)||(hr!==null&&(hr<40||hr>130))||(rr!==null&&(rr<8||rr>30))||(spo2!==null&&spo2<90)||(gcs!==null&&gcs<9);
+  if(systolic!==null&&systolic<90) priorities.push(t("systolicPriority"));
+  if(spo2!==null&&spo2<90) priorities.push(t("spo2Priority"));
+  if(rr!==null&&(rr<8||rr>30)) priorities.push(t("rrPriority"));
+  if(hr!==null&&(hr<40||hr>130)) priorities.push(t("hrPriority"));
+  if(gcs!==null&&gcs<9) priorities.push(t("gcsPriority"));
+  if(temp!==null&&(temp>=39||temp<35)) priorities.push(t("tempPriority"));
+  if(symptoms&&(/confusion|unconscious|unresponsive|severe shortness of breath|chest pain|ارتباك|تشوش|فاقد الوعي|ضيق شديد في التنفس|ألم في الصدر/i.test(symptoms))) priorities.push(t("symptomPriority"));
+  if(!priorities.length) priorities.push(t("generalPriority1"),t("generalPriority2"));
+
+  const risk=$("riskLevel"),notice=$("assessmentNotice");
+  $("warnings").replaceChildren();$("priorities").replaceChildren();$("missingInfo").replaceChildren();$("clinicalInfo").replaceChildren();
+  risk.className="risk-label";
+  if(invalid){risk.dataset.state="invalidData";risk.textContent=t("invalidData");risk.classList.add("risk-urgent");notice.textContent=t("invalidNotice");notice.className="notice danger-notice";}
+  else if(concerning){risk.dataset.state="concerning";risk.textContent=t("concerning");risk.classList.add("risk-urgent");notice.textContent=t("concerningNotice");notice.className="notice danger-notice";}
+  else{risk.dataset.state="uncertain";risk.textContent=t("uncertain");risk.classList.add("risk-uncertain");notice.textContent=t("uncertainNotice");notice.className="notice";}
+
+  errors.forEach(addWarning);
+  if(errors.length) $("warnings").className="notice danger-notice"; else $("warnings").className="";
+  if(missing.length) missing.forEach(m=>addListItem($("missingInfo"),m)); else addListItem($("missingInfo"),t("noMissing"));
+  priorities.forEach(p=>addListItem($("priorities"),p));
+  const note=document.createElement("p");note.textContent=t("clinicalCaution");$("clinicalInfo").appendChild(note);
+  $("results").style.display="block";
+
+  if(!invalid) {
+    const patient={age,gcs,bloodPressure:bpText,systolicBloodPressure:systolic,diastolicBloodPressure:diastolic,heartRate:hr,respiratoryRate:rr,spo2,temperatureC:temp,symptoms,educationalAlerts:priorities,missingInformation:missing};
+    requestAIAnalysis(patient);
+  } else {
+    const message=document.createElement("p");message.textContent=t("aiNotRequested");$("clinicalInfo").appendChild(message);
+  }
+  $("results").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+$("analysisLanguage").addEventListener("change",e=>setLanguage(e.target.value));
+$("caseSelector").addEventListener("change",updateCaseBrief);
+$("analyzeButton").addEventListener("click",analyzeCase);
+$("clearButton").addEventListener("click",clearForm);
+$("loadCaseButton").addEventListener("click",loadClinicalCase);
+setLanguage("en");
+</script>
+</body>
+</html>
